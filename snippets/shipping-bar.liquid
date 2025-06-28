@@ -1,0 +1,138 @@
+{% if settings.enable_shippingbar  %}
+    {% comment %} Progress bar Logic start {% endcomment %}
+    {% assign next_goal_text = '' %}
+    {% assign cart_value = cart.original_total_price | divided_by: 100.00 %}
+    {% assign all_goal_complete_text = settings.all_goal_complete_text %}
+    {% assign shipping_bar_color = settings.shipping_bar_color %}
+    {% assign number_of_goals = 0 %}
+    {% assign number_of_goals_reached = 0 %}
+    {% assign progress_bar_width = 0 %}
+    {% assign progress_width = 0 %}
+    {% assign next_progress_bar_width = 0 %}
+    {% assign offer_value = settings.goal_value_1 | times: 1.00 %}
+    {% assign first_goal_value = settings.goal_value_1 | times: 1.00 %}
+    {% assign previous_offer_value = 0 %}
+    {% assign next_offer_value = settings.goal_value_1 | times: 1.00 %}
+    
+    {% for index in (1..3) %}
+      {% assign shipping_goal_value = 'goal_value_' | append: index %}
+      {% assign shipping_goal_name = 'goal_name_' | append: index %}
+      {% assign goal_value = settings[shipping_goal_value] | times: 1.00 %}
+        
+      {% if cart_value < goal_value and next_goal_text == '' %}
+        {% assign balance = goal_value | minus: cart_value | times: 100 | money %}
+        {% assign next_balance = '<span>' | append: balance | append: '</span>' %}
+        {% assign next_goal_name = '<span>' | append: settings[shipping_goal_name] | append: '</span>' %}
+        {% assign next_goal_text = settings.next_goal_text
+          | replace: '$value', next_balance
+          | replace: '$goal', next_goal_name
+        %}
+      {% endif %}
+      {% if goal_value != blank %}
+        {% assign number_of_goals = number_of_goals | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+    
+    {% if offer_value == first_goal_value %}
+      {% assign progress_bar_width = 100 | divided_by: number_of_goals | times: 1.0 %}
+      {% assign initial_progress_bar_width = 100 | divided_by: number_of_goals | times: 1.0 %}
+      {% assign progress_width = cart_value | divided_by: offer_value | times: 100 %}
+    {% endif %}
+    {% for index in (1..number_of_goals) %}
+      {% assign offer_value_id = 'goal_value_' | append: index %}
+      {% assign offer_value = settings[offer_value_id] | times: 1.00 %}
+      {% if cart_value >= offer_value %}
+        {% assign number_of_goals_reached = number_of_goals_reached | plus: 1 %}
+        {% if number_of_goals_reached == number_of_goals %}
+          {% assign progress_bar_width = 100 %}
+          {% assign progress_width = 100 %}
+          {% break %}
+        {% endif %}
+        {% assign next_progress_bar_width = number_of_goals_reached | plus: 1 %}
+        {% assign previous_bar_width = progress_bar_width %}
+        {% assign progress_bar_width = initial_progress_bar_width | times: next_progress_bar_width | at_most: 100 %}
+        {% assign previous_offer_value = offer_value %}
+        {% assign next_offer_value_id_number = number_of_goals_reached | plus: 1 %}
+        {% assign next_offer_value_id = 'goal_value_' | append: next_offer_value_id_number %}
+        {% assign next_offer_value = settings[next_offer_value_id] %}
+        {% assign previous_progress_width = previous_bar_width | divided_by: progress_bar_width | times: 100 %}
+        {% assign offer_difference = next_offer_value | minus: previous_offer_value %}
+        {% assign remaining_percent = 100 | minus: previous_progress_width %}
+        {% assign present_progress_width = cart_value
+          | minus: offer_value
+          | divided_by: offer_difference
+          | times: 100
+          | times: remaining_percent
+          | divided_by: 100
+        %}
+        {% assign progress_width = previous_progress_width | plus: present_progress_width | at_most: 100 %}
+      {% endif %}
+    {% endfor %}
+    {% comment %} Progress bar Logic end {% endcomment %}
+    
+    {% style %}
+      .shipping-bar__goal-text p span {
+        color: {{ shipping_bar_color }};
+      }
+    {% endstyle %}
+    <shipping-bar class="shipping-bar">
+      {% if cart.item_count > 0 %}
+        <div class="shipping-bar__container">
+            {%- if next_goal_text != blank -%}
+                <p class="goal_msg">{{ next_goal_text }}</p>
+            {%- else -%}
+                <p class="goal_msg">{{ all_goal_complete_text }}</p>
+            {%- endif -%}
+          <div class="shipping-bar__content">
+            <div class="shipping-bar__content-container">
+              {% for index in (1..3) %}
+                {% assign shipping_goal_value = 'goal_value_' | append: index %}
+                {% assign shipping_goal_name = 'goal_name_' | append: index %}
+                {% assign shipping_goal_icon = 'icon_' | append: index %}
+                {% if settings[shipping_goal_value] != blank
+                  and settings[shipping_goal_name] != blank
+                  and settings[shipping_goal_icon] != blank
+                %}
+                  {% assign goal_value_temp = settings[shipping_goal_value] | times: 1.00 %}
+                  {% style %}
+                    .shipping-bar__progress-bar-wrapper::before {
+                      background: #F2F2F2;
+                      opacity: 1;
+                    }
+                    .shipping-bar__content-wrapper::after{
+                      background: {{ shipping_bar_color }};
+                      width: calc({{ progress_width | at_most: 100 }}%);
+                      transition: width 5s ease;
+                      z-index:2;
+                    }
+                    .shipping-bar__goal-icon-container::before{
+                     background:{{ shipping_bar_color }};
+                    }
+                    @media screen and (min-width:750px){
+                      .shipping-bar__content-wrapper::after{
+                      width: calc({{ progress_width | at_most: 100 }}%);
+                    }
+                    }
+                  {% endstyle %}
+                  <div
+                    id="goal-name--{{ settings[shipping_goal_name] | handle }}"
+                    class="shipping-bar__icons-text-container {% if cart_value >= goal_value_temp %}shipping-bar__goal-value-reached{% endif %}"
+                  >
+                    <div class="shipping-bar__goal-icon-container">
+                      <div class="shipping-bar__goal-icon">{{ settings[shipping_goal_icon] }}</div>
+                    </div>
+                    <div class="shipping-bar__goal-text-container">
+                      <p class="shipping-bar__goal-value">{{ settings[shipping_goal_value] | times: 100 | money_without_trailing_zeros }}</p>
+                      <p class="shipping-bar__goal-value-text">{{ settings[shipping_goal_name] }}</p> 
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <div class="shipping-bar__content-wrapper" style="width: {{ progress_bar_width }}%;"></div>
+            <div class="shipping-bar__progress-bar-wrapper"></div>
+          </div>
+        </div>
+      {% endif %}
+    </shipping-bar>
+{%  endif %}
