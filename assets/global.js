@@ -1330,3 +1330,127 @@ class CartPerformance {
     );
   }
 }
+
+class LazySection extends HTMLElement {
+  static sectionsToFetch = [];
+
+  constructor() {
+    super();
+    this.section = this.closest('section')?.id || this.closest('[id]').id;
+    this.section = this.section?.replace('shopify-section-', '');
+    this.trigger = 'intersection-observer';
+    this.targetSelector = 'body';
+    this.spinner = this.querySelector('.loading__spinner');
+  }
+
+  connectedCallback() {
+    new IntersectionObserver(this.handleIntersection.bind(this), { rootMargin: '0px 0px 100px 0px' }).observe(this);
+    this.spinner?.classList.remove('hidden');
+  }
+
+  // Handler for intersection-observer trigger
+  handleIntersection(entries, observer) {
+    if (!entries[0].isIntersecting) return;
+    observer.unobserve(this);
+
+    this.fetchSections();
+  }
+
+  // Common function for fetching sections
+  fetchSections() {
+    LazySection.sectionsToFetch.push(this.section);
+    const sectionsToFetchBatch = LazySection.sectionsToFetch.length == 5 ? LazySection.sectionsToFetch.splice(0, 5) : LazySection.sectionsToFetch;
+
+    // Check if there is an ongoing network request
+    if (LazySection.abortController) {
+      LazySection.abortController.abort();
+    }
+
+    LazySection.abortController = sectionsToFetchBatch.length < 5 && new AbortController();
+
+    fetch(window.location.pathname + '?sections=' + sectionsToFetchBatch.join(','), LazySection.abortController.signal ? { signal: LazySection.abortController.signal } : {})
+      .then((response) => response.json())
+      .then((json) => {
+        for (const [key, value] of Object.entries(json)) {
+          const sectionContent = new DOMParser().parseFromString(value, 'text/html').getElementById('shopify-section-' + key);
+
+          if (sectionContent && sectionContent.innerHTML.trim().length) {
+            const section = document.getElementById('shopify-section-' + key);
+            section.innerHTML = sectionContent.innerHTML;
+
+              // Reinjects the script tags to allow execution. By default, scripts are disabled when using element.innerHTML.
+            section.querySelectorAll('script').forEach((oldScriptTag) => {
+              const newScriptTag = document.createElement('script');
+              Array.from(oldScriptTag.attributes).forEach((attribute) => {
+                newScriptTag.setAttribute(attribute.name, attribute.value);
+              });
+              newScriptTag.appendChild(document.createTextNode(oldScriptTag.innerHTML));
+              oldScriptTag.parentNode.replaceChild(newScriptTag, oldScriptTag);
+            });
+
+            this.spinner?.classList.add('hidden');
+          }
+        }
+
+        if (sectionsToFetchBatch.length < 5)
+          LazySection.sectionsToFetch = [];
+      })
+      .catch((e) => {
+        console.warn(e);
+        this.spinner?.classList.add('hidden');
+      });
+  }
+}
+
+customElements.define('lazy-section', LazySection);
+
+class CustomerRecommendation extends HTMLElement {
+  constructor() {
+    super();
+    this.customerId = this.getAttribute('customer-id');
+    this.sectionId = this.getAttribute('section-id');
+    this.recommendationUrl = `${window.shopUrl}/a/recommendation?customer_id=${this.customerId}`;
+  }
+
+  connectedCallback() {
+    this.fetchRecommendations();
+  }
+
+  fetchRecommendations() {
+    fetch(this.recommendationUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data && data.recommendedProductIds && data.recommendedProductIds.length > 0) {
+          this.renderRecommendations(data.recommendedProductIds);
+        } else {
+          this.classList.add('hidden');
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching recommendations:', error);
+        this.querySelector('.product-cards-container').innerHTML = '<p>Error loading recommendations.</p>';
+      });
+  }
+
+  renderRecommendations(products) {
+    const container = this.querySelector('.product-cards-container');
+    products.forEach((product) => {
+      // Fetch product card HTML using section rendering
+      fetch(`${window.shopUrl}/products/${product.handle}?view=card&variant=${product.id}`)
+        .then((res) => res.text())
+        .then((html) => {
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          const productCard = doc.querySelector('.product-card');
+
+          if (productCard) {
+            container.appendChild(productCard);
+          }
+        })
+        .catch((err) => {
+          console.error('Error rendering product card:', err);
+        });
+    });
+  }
+}
+
+customElements.define('customer-recommendation', CustomerRecommendation);

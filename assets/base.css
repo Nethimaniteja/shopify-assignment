@@ -3595,3 +3595,31 @@ details-disclosure > details {
     transform: translateX(100%) scaleX(0);
   }
 }
+
+.lazy-section-spinner-container{
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+}
+.lazy-section-spinner-container .loading__spinner{
+  width: 38px;
+  position: unset;
+}
+.product-recommendation .product-cards-container{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.product-recommendation .product-card{
+  display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.product-recommendation-heading{
+  padding: 30px 0;
+}
+.product-recommendation.hidden{
+  display: none;
+}

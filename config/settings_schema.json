@@ -196,6 +196,17 @@
         "default": 8,
         "unit": "px",
         "label": "t:settings_schema.layout.settings.spacing_grid_vertical.label"
+      },
+      {
+        "type": "header",
+        "content": "Section lazy loading"
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_lazy_loading_sections",
+        "label": "Enable lazy loading sections",
+        "info": "This will enable lazy loading of sections. Can improve performance.",
+        "default": true
       }
     ]
   },
