@@ -22,6 +22,8 @@ Looks up matching entries in the sheet
 Sends a Back-in-Stock email to those customers
 Marks them as "notified" to prevent duplicate emails
 
+![App script](image-2.png)
+
 📧 Sample Email Notification
 Customers receive a simple email when the product is restocked:
 ![Email notification](image-1.png)
@@ -30,3 +32,5 @@ Customers receive a simple email when the product is restocked:
 You can test this flow using the following product that is currently out of stock:
 
 Product link that is in out of stock is : https://mani-test-built.myshopify.com/products/example-hat
+
+Key files : snippets/buy-buttons.liquid, global.js
