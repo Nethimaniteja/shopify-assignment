@@ -6,7 +6,7 @@ Created a dynamic progress bar with three customizable goals (e.g. ₹100, ₹20
 Progress bar thresholds and messages are configurable via theme customizer
 
 📸 Customizer settings preview:
-![cart drawer customizer](image.png)
+![cart drawer customizer](image-2.png)
 
 Implemented automatic discount logic:
 
@@ -14,7 +14,7 @@ Discount messages appear based on current cart subtotal
 
 🖥️ Frontend UI
 Here is the custom cart drawer and progress bar display:
-![cart drawer](image-1.png)
+![cart drawer](image-3.png)
 
 
 📁 Key Files
