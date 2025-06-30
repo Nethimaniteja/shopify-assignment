@@ -1,0 +1,130 @@
+{%- if settings.enable_lazy_loading_sections and section.index != null -%}
+  {% assign lazy_load = true %}
+{%- endif -%}
+
+{% if lazy_load != blank %}
+  <lazy-section>
+{% endif %}
+
+{% if lazy_load == blank %}
+  {% style %}
+    .padding-{{ section.id }} {
+      padding-top: {{ section.settings.mobile_padding_top  }}px;
+      padding-bottom: {{ section.settings.mobile_padding_bottom}}px;
+    }
+    @media only screen and (min-width: 750px) {
+      .padding-{{ section.id }} {
+        padding-top: {{ section.settings.desktop_padding_top }}px;
+        padding-bottom: {{ section.settings.desktop_padding_bottom }}px;
+      }
+    }
+  {% endstyle %}
+
+  {% if section.settings.product_tag != blank and product.tags contains section.settings.product_tag %}
+    <div class="page-width padding-{{ section.id }}">
+      {% if section.settings.heading != blank %}
+        <h3 class="font-body-bold">{{ section.settings.heading }}</h3>
+      {% endif %}
+      {% if section.settings.description != blank %}
+        <p>{{ section.settings.description }}</p>
+      {% endif %}
+      {%- if section.settings.context != blank -%}
+        {{ section.settings.context }}
+      {%- endif -%}
+    </div>
+  {% endif %}
+
+{% else %}
+  <div class="lazy-section-spinner-container">
+    {%- render 'loading-spinner' -%}
+  </div>
+{% endif %}
+
+{% if lazy_load != blank %}
+  </lazy-section>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Scientific Breakdown",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Scientific Breakdown"
+    },
+    {
+      "type": "text",
+      "id": "product_tag",
+      "label": "Product Tag",
+      "info": "Section will be rendered only if the product has this tag."
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Description",
+      "default": "Discover the science behind our products."
+    },
+    {
+      "type": "richtext",
+      "id": "context",
+      "label": "Context",
+      "default": "<p>Product scientific information</p>"
+    },
+    {
+      "type": "header",
+      "content": "Desktop padding"
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding top desktop",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "desktop_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding bottom desktop",
+      "default": 32
+    },
+    {
+      "type": "header",
+      "content": "Mobile padding"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding top mobile",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "label": "Padding Bottom mobile",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scientific Breakdown"
+    }
+  ]
+}
+{% endschema %}

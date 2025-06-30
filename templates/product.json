@@ -73,6 +73,52 @@
         "padding_bottom": 12
       }
     },
+    "custom_usp_pcEyLL": {
+      "type": "custom-usp",
+      "blocks": {
+        "usp_w9d3At": {
+          "type": "usp",
+          "repeater": "{{ product.metafields.custom.usp_1.value }}",
+          "settings": {
+            "usp_icon": "{{ block.repeater.icon.value }}"
+          }
+        }
+      },
+      "block_order": [
+        "usp_w9d3At"
+      ],
+      "name": "USP Section",
+      "settings": {
+        "heading": "Product USP",
+        "desktop_padding_top": 0,
+        "desktop_padding_bottom": 32,
+        "mobile_padding_top": 0,
+        "mobile_padding_bottom": 20
+      }
+    },
+    "custom_scientific_breakdown_3tcBpC": {
+      "type": "custom-scientific-breakdown",
+      "name": "Scientific Breakdown",
+      "settings": {
+        "heading": "Scientific Breakdown",
+        "product_tag": "clinical-grade",
+        "description": "Discover the science behind our products.",
+        "context": "<ul><li><strong>Retinol<\/strong> – Reduces fine lines and boosts cell turnover<\/li><li><strong>Niacinamide<\/strong> – Brightens skin and improves barrier function<\/li><li><strong>Hyaluronic Acid<\/strong> – Deep hydration and plumping<\/li><\/ul>",
+        "desktop_padding_top": 0,
+        "desktop_padding_bottom": 32,
+        "mobile_padding_top": 0,
+        "mobile_padding_bottom": 20
+      }
+    },
+    "custom_video_3xRG6q": {
+      "type": "custom-video",
+      "name": "Custom Video",
+      "settings": {
+        "heading": "Product Video",
+        "cover_image": "shopify:\/\/shop_images\/istockphoto-184601291-612x612.jpg",
+        "video_link": "{{ product.metafields.custom.video.value }}"
+      }
+    },
     "related-products": {
       "type": "related-products",
       "settings": {
@@ -94,6 +140,9 @@
   },
   "order": [
     "main",
+    "custom_usp_pcEyLL",
+    "custom_scientific_breakdown_3tcBpC",
+    "custom_video_3xRG6q",
     "related-products"
   ]
 }
