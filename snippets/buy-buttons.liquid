@@ -149,3 +149,22 @@
     <script src="{{ 'pickup-availability.js' | asset_url }}" defer="defer"></script>
   {%- endif -%}
 </div>
+
+{%- if product.available == false -%}
+  <back-in-stock-notify
+    variant-id="{{ product.selected_or_first_available_variant.id }}"
+    api-url="https://script.google.com/macros/s/AKfycbxLpLJpiTNACB970iWmN6dNWbMbWetXVL-10TyRDYpxyTGwW7wmMfV2HeVsUGf1FiAF/exec">
+  
+    <div class="notify-container">
+      <button class="notify-button">Notify Me</button>
+  
+      <div class="form-wrapper hidden">
+        <input type="email" class="email-input" placeholder="Enter your email" required />
+        <button class="submit-button">Submit</button>
+      </div>
+  
+      <div class="success-message hidden"></div>
+    </div>
+  
+  </back-in-stock-notify>
+{%- endif -%}

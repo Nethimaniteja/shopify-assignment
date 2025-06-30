@@ -1454,3 +1454,53 @@ class CustomerRecommendation extends HTMLElement {
 }
 
 customElements.define('customer-recommendation', CustomerRecommendation);
+
+
+class BackInStockNotify extends HTMLElement {
+  connectedCallback() {
+    const variantId = this.getAttribute('variant-id');
+    const apiUrl = this.getAttribute('api-url');
+
+    const notifyBtn = this.querySelector('.notify-button');
+    const formWrapper = this.querySelector('.form-wrapper');
+    const emailInput = this.querySelector('.email-input');
+    const submitBtn = this.querySelector('.submit-button');
+    const messageBox = this.querySelector('.success-message');
+
+    notifyBtn.addEventListener('click', () => {
+      formWrapper.classList.remove('hidden');
+      messageBox.classList.add('hidden');
+    });
+
+    submitBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      if (!email) return;
+
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('variant_id', variantId);
+
+      try {
+        const res = await fetch(apiUrl, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (res.ok) {
+          formWrapper.classList.add('hidden');
+          messageBox.textContent = "Thanks! You'll be notified.";
+          messageBox.classList.remove('hidden');
+          emailInput.value = '';
+        } else {
+          throw new Error();
+        }
+      } catch (err) {
+        formWrapper.classList.add('hidden');
+        messageBox.classList.add('hidden');
+        emailInput.value = '';
+      }
+    });
+  }
+}
+
+customElements.define('back-in-stock-notify', BackInStockNotify);
